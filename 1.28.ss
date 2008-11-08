@@ -1,3 +1,7 @@
+; Structure and Interpretation of Computer Programs
+; Problem 1.28
+; T. R. Whitcomb 29SEP2008
+
 (define (expmod-mr base exp m)
   (cond ((= exp 0) 1)
         ((even? exp)
