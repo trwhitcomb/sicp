@@ -1,0 +1,102 @@
+; Structure and Interpretation of Computer Programs
+; Problem 2.11
+; T. R. Whitcomb 13NOV2008
+
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x) (lower-bound y))
+                 (+ (upper-bound x) (upper-bound y))))
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x) (lower-bound y))
+                 (- (upper-bound x) (upper-bound y))))
+
+
+; Multiplication can be broken down into 9 cases by testing the
+; interval endpoints, only one of which requires more than 2
+; multiplications
+; Cases are:    (- -)(- -)
+;               (- -)(- +)
+;               (- -)(+ +)
+;               (- +)(- -)
+;               (- +)(- +)
+;               (- +)(+ +)
+;               (+ +)(- -)
+;               (+ +)(- +)
+;               (+ +)(+ +)
+(define (neg? x) (< x 0))
+(define (pos? x) (> x 0))
+(define (mul-interval x y)
+  (let ((lb-x (lower-bound x))
+        (ub-x (upper-bound x))
+        (lb-y (lower-bound y))
+        (ub-y (upper-bound y)))
+    (if (neg? lb-x)
+        (if (neg? ub-x)
+            (if (neg? lb-y)
+                (if (neg? ub-y)
+                    (mul-case 1 x y)
+                    (mul-case 2 x y))
+                (print-case 3 x y))
+            (if (neg? lb-y)
+                (if (neg? ub-y)
+                    (print-case 4 x y)
+                    (print-case 5 x y))
+                (print-case 6 x y)))
+        (if (neg? lb-y)
+            (if (neg? ub-y)
+                (print-case 7 x y)
+                (print-case 8 x y))
+            (mul-case 9 x y)))))
+
+(define (mul-case n x y)
+  (cond ((= n 1) (make-interval (* (upper-bound x) (upper-bound y))
+                                (* (lower-bound x) (lower-bound y))))
+        ((= n 2) (make-interval (* (upper-bound x) (upper-bound y))
+                                (* (lower-bound x) (lower-bound y))))
+        ((= n 9) (make-interval (* (lower-bound x) (lower-bound y))
+                                (* (upper-bound x) (upper-bound y))))))
+
+(define (print-case n . z)
+  (cond ((= n 1) (display "----"))
+        ((= n 2) (display "---+"))
+        ((= n 3) (display "--++"))
+        ((= n 4) (display "-+--"))
+        ((= n 5) (display "-+-+"))
+        ((= n 6) (display "-+++"))
+        ((= n 7) (display "++--"))
+        ((= n 8) (display "++-+"))
+        ((= n 9) (display "++++"))
+        (else (display n)))
+  (newline))
+
+; Division is undefined if the interval spans zero
+(define (div-interval x y)
+  (if (< (* (lower-bound y) (upper-bound y)) 0)
+      (display "Division error - interval spans zero")
+      (mul-interval x
+                    (make-interval (/ 1.0 (upper-bound y))
+                                   (/ 1.0 (lower-bound y))))))
+
+; Constructors and Selectors
+(define (make-interval a b) (cons a b))
+(define (upper-bound interval) (cdr interval))
+(define (lower-bound interval) (car interval))
+(define (print-interval x)
+  (display (lower-bound x))
+  (display " <-> ")
+  (display (upper-bound x))
+  (newline))
+
+; Test
+(define -- (make-interval -5 -1))
+(define -+ (make-interval -5 1))
+(define ++ (make-interval 1 5))
+
+(print-interval (mul-interval -- --))
+(print-interval (mul-interval -- -+))
+(mul-interval -- ++)
+(mul-interval -+ --)
+(mul-interval -+ -+)
+(mul-interval -+ ++)
+(mul-interval ++ --)
+(mul-interval ++ -+)
+(print-interval (mul-interval ++ ++))
