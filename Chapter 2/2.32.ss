@@ -2,12 +2,10 @@
 ; Problem 2.32
 ; T. R. Whitcomb, 04DEC2008
 
-(define (subset-map l)
-  (if (null? l)
-      '()
-      (if (pair? (car l))
-          (subsets l)
-          (list l))))
+; Why does this work?
+; The only subset of an empty set is an empty set
+; All subsets of a set containing (element list) is just
+; the union of (subsets list) and (element (subsets list))
 
 (define (subsets s)
   (if (null? s)
